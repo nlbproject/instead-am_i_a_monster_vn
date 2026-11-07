@@ -79,7 +79,8 @@ vntimer = function(f, s, cmd, ...)
     end
     if vn._need_update then
         vn._need_update = false;
-        return true;
+        RAW_TEXT = true;
+        return game._lastdisp or "";
     end
     return update_cursor_result;
 end
@@ -619,7 +620,11 @@ vn = obj {
     end;
     free_effect = function(s, v)
         for i, vv in pairs(v.spr) do
-            vv:free();
+            if vv.free then
+                vv:free();
+            else
+                log:err("Error freeing sprite " .. v.pic .. "@" .. i);
+            end
         end
         local gob = s:gobf(v);
         if gob and gob.is_dynamic then
@@ -1364,19 +1369,44 @@ vn = obj {
             s._bg = false;
             return
         end
-        if s.bg_spr then
-            if force or s._bg ~= picture then
-                local bg_spr = gr:load(picture);
-                gr:copy(bg_spr, s.bg_spr);
-                gr:free(bg_spr);
-            else
-                log:dbg("Background " .. picture .. " is already set, doing nothing");
-            end
-        else
-            s.bg_spr = gr:load(picture)
+        if s.bg_spr and not force and s._bg == picture then
+            log:dbg("Background " .. picture .. " is already set, doing nothing");
+            return
         end
-        if not s.bg_spr then
+        local pic = gr:load(picture);
+        if not pic then
             error("Can not load bg sprite:" .. tostring(picture))
+        end
+        local w, h = gr:size(pic);
+        local sw, sh = tonumber(s.scr_w), tonumber(s.scr_h);
+        if w ~= sw or h ~= sh then
+            -- фон не во весь экран темы (кадры заставки 480x360 в теме 800x600) — по центру, вокруг
+            -- цвет рамки, как theme.gfx.bg INSTEAD; раньше он ложился в левый верхний угол.
+            -- Рамка во весь экран создаётся один раз: gr:box такого размера — несколько мс, а
+            -- заставка «Фронтира» меняет фон 25 раз в секунду (кадры шли рывками, курсор подвисал)
+            local brd = theme.get('scr.col.brd') or 'black';
+            local key = sw .. 'x' .. sh .. ':' .. tostring(brd);
+            if not s._frame_spr or s._frame_key ~= key then
+                if s._frame_spr then
+                    gr:free(s._frame_spr);
+                end
+                s._frame_spr = gr:box(sw, sh, brd);
+                s._frame_key = key;
+            end
+            if not s.bg_spr then
+                s.bg_spr = gr:blank(sw, sh);
+            end
+            gr:copy(s._frame_spr, s.bg_spr);
+            gr:copy(pic, s.bg_spr, math.floor((sw - w) / 2), math.floor((sh - h) / 2));
+            gr:free(pic);
+            s._bg = picture;
+            return
+        end
+        if s.bg_spr then
+            gr:copy(pic, s.bg_spr);
+            gr:free(pic);
+        else
+            s.bg_spr = pic;
         end
         s._bg = picture;
     end;
@@ -1441,7 +1471,7 @@ vn = obj {
         end
         x, y = s:postoxy(v, idx);
 
-        if v.spr[idx].preloaded_effect then
+        if v.spr[idx] and v.spr[idx].preloaded_effect then
             sp = s:frame(v, s:get_step(v), s:screen(), x, y, only_compute, true);
             alpha = sp.alpha;
             log:dbg("Using preloaded effect in fade(), alpha = " .. alpha);

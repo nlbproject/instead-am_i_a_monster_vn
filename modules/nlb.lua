@@ -1,5 +1,6 @@
 require 'prefs'
 require 'sprites'
+require 'counters'
 
 nlb = obj {
     nam = 'nlb';
@@ -9,6 +10,12 @@ nlb = obj {
     _clones = {};
     _filter = {};
     _curloc = nil;
+    _inv_count = 0;
+    _act_count = 0;
+    _use_count = 0;
+    _walk_count = 0;
+    _technical_walk_count = 0;
+    _technical_act_count = 0;
     rst = function(s)
         s._lists = {};
         s._clones = {};
@@ -84,6 +91,16 @@ nlb = obj {
             prevlist = list;
             list = list.next;
         end;
+    end;
+    -- AUTO-переменная в числовом сравнении или арифметике (экспорт: nlb:num(_x)): до первого
+    -- присваивания она false (initializeVariables) — как число это 0, true — 1, остальное как есть
+    num = function(s, v)
+        if v == false then
+            return 0;
+        elseif v == true then
+            return 1;
+        end;
+        return v;
     end;
     size = function(s, listname)
         local list = s._lists[listname];
@@ -216,7 +233,9 @@ nlb = obj {
             if not v() then
                 local t = r.alts[k];
                 if t then
-                    result = result.."^"..t();
+                    -- текст недоступной ссылки — своей строкой, как ссылки после него (xdsc
+                    -- начинается с «^», и «^» перед текстом давал вторую пустую строку)
+                    result = result..t().."^";
                 end
             end
         end
@@ -302,10 +321,18 @@ nlb = obj {
             return '';
         end
     end;
-    nlbwalk = function(s, src, tgt)
+    nlbwalk = function(s, src, tgt, is_technical)
         vn:request_full_clear();
         if not src then
             src = s:curloc();
+        end
+        -- ссылки STANDARD (xact в STEADExportManager.decorateLinkStart) передают цель именем
+        -- комнаты: ниже ей ставится wastext, а строке поле не присвоить
+        if type(tgt) == 'string' then
+            tgt = stead.ref(tgt);
+        end
+        if is_technical then
+            s:inc_technical_walk_count()
         end
         if (src ~= tgt) then
             lifeoff(src);
@@ -343,6 +370,9 @@ nlb = obj {
         for k, v in pairs(prefs.achievements_ids) do
             local max = prefs.achievements_max[k] or 1;
             if k ~= prefs.achievementNamePerfectGame and tablelength(v) < max then
+                if prefs.achievementNamePerfectGame then
+                    statsAPI.clearAchievement(prefs.achievementNamePerfectGame, true);
+                end
                 prefs:store();
                 return false;
             end
@@ -373,6 +403,29 @@ nlb = obj {
         for k, v in pairs(prefs.achievements_ids) do
             if tablelength(v) > 0 then
                 s:storeAchievement(statsAPI, k);
+            end
+        end
+        -- This code is for compatibility with previous achievements
+        if prefs.achievements then
+            local achievementsToSet = {};
+            for k, v in pairs(prefs.achievements) do
+                if not prefs.achievements_ids[k] then
+                    -- This initialization is mainly used for backward compatibility with previous achievements
+                    prefs.achievements_ids[k] = {};
+                end
+                if v > 0 then
+                    achievementsToSet[k] = v;
+                end
+            end
+            if prefs.achievementNamePerfectGame then
+                if not prefs.achievements_ids[prefs.achievementNamePerfectGame] then
+                    -- This initialization is mainly used for backward compatibility with previous achievements
+                    prefs.achievements_ids[prefs.achievementNamePerfectGame] = {};
+                end
+            end
+            prefs:store();
+            for k, v in pairs(achievementsToSet) do
+                s:setAchievement(statsAPI, k, "compat_id");
             end
         end
     end;
@@ -429,6 +482,61 @@ nlb = obj {
             delete_snapshot(0);
         end
         make_snapshot(0);
+    end;
+    inc_technical_walk_count = function(s)
+        s._technical_walk_count = s._technical_walk_count + 1;
+    end;
+    inc_technical_act_count = function(s)
+        s._technical_act_count = s._technical_act_count + 1;
+    end;
+    count_reset = function(s)
+        local ic = inv_count();
+        local ac = act_count();
+        local uc = use_count();
+        local wc = walk_count();
+        s._inv_count = ic;
+        s._act_count = ac;
+        s._technical_act_count = 0;
+        s._use_count = uc;
+        s._walk_count = wc;
+        s._technical_walk_count = 0;
+    end;
+    bitand = function(s, a, b)
+        local result = 0
+        local bitval = 1
+        while a > 0 and b > 0 do
+            if a % 2 == 1 and b % 2 == 1 then -- test the rightmost bits
+                result = result + bitval      -- set the current bit
+            end
+            bitval = bitval * 2 -- shift left
+            a = math.floor(a/2) -- shift right
+            b = math.floor(b/2)
+        end
+        return result
+    end;
+    count_get = function(s, statType)
+        local diff = 0;
+        if statType == 0 or s:bitand(statType, 1) > 0 then
+            local ic = inv_count();
+            local ic_prev = s._inv_count;
+            diff = diff + ic - ic_prev;
+        end
+        if statType == 0 or s:bitand(statType, 2) > 0 then
+            local ac = act_count() - s._technical_act_count;
+            local ac_prev = s._act_count;
+            diff = diff + ac - ac_prev;
+        end
+        if statType == 0 or s:bitand(statType, 4) > 0 then
+            local uc = use_count();
+            local uc_prev = s._use_count
+            diff = diff + uc - uc_prev;
+        end
+        if statType == 0 or s:bitand(statType, 8) > 0 then
+            local wc = walk_count() - s._technical_walk_count;
+            local wc_prev = s._walk_count;
+            diff = diff + wc - wc_prev;
+        end
+        return diff;
     end;
 };
 
