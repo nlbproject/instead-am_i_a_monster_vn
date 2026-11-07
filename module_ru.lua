@@ -1,5 +1,4 @@
 --$Name:Am I a Monster?$
---$Name(ru):Я -- монстр?$
 --$Version:1.04$
 --$Author:NLB project$
 instead_version '2.3.0'
@@ -22,6 +21,7 @@ require 'modules/fonts'
 require 'modules/paginator'
 require 'modules/vn'
 require 'modules/gobj'
+require 'dice/modules/big_pig'
 game.codepage='UTF-8';
 stead.scene_delim = '^';
 
@@ -32,6 +32,21 @@ game.forcedsc = false;
 paginator.delim = '\n[ \t]*\n'
 function exec(s)
     p('$'..s:gsub('\n', '^')..'$^^')
+end
+function update_action_count()
+    _action_count_diff_prev = _action_count_diff;
+    _action_count_diff = nlb:count_get(0);
+    if _action_count_diff <= _action_count_diff_prev then
+        return false;
+    end
+    return true;
+end
+function has_action()
+    if _action_count_diff < _needs_action_count then
+        return false;
+    end
+    nlb:count_reset();
+    return true;
 end
 function init()
     statsAPI.init();
@@ -47,6 +62,9 @@ function init()
     vn:scene(nil);
     nlbticks = stead.ticks();
     _export_lang = 'ru';
+    _action_count_diff = 0;
+    _action_count_diff_prev = 0;
+    _needs_action_count = 3;
     _syscall_showmenubtn:act();
     format.quotes = true;
     if not prefs.achievements_max then
@@ -187,7 +205,7 @@ v_766dc293_6fcf_421e_8b99_ef09b92a98b2 = nlbstat {
 
 _infoObj = v_766dc293_6fcf_421e_8b99_ef09b92a98b2
 -- For Ludum Dare #33 \"You are the Monster\"
-main, v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f = room { nam = 'main', enter = function(s) nlb:nlbwalk(s, v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f); end }, vnr {
+main, v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f = room { nam = 'main', enter = function(s) nlb:nlbwalk(s, v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f, true); end }, vnr {
     nam = 'Am I a Monster?',
     notes = 'For Ludum Dare #33 \"You are the Monster\"',
     bgimg = function(s)
@@ -201,6 +219,7 @@ main, v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f = room { nam = 'main', enter = func
     end,
     walk_to = "v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -265,7 +284,7 @@ v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f_choices = vn_choices {
         paginator:turnoff();
 if true then
                 nlb:addf(nil, v_766dc293_6fcf_421e_8b99_ef09b92a98b2, false);
-        nlb:nlbwalk(v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f, v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6); 
+        nlb:nlbwalk(v_f7cb8bed_47a9_4ce2_b713_c9b53571c93f, v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6, false); 
     return;
 end;
     end,
@@ -307,6 +326,7 @@ pn();
     end,
     walk_to = "v_c28ae684_785a_4442_8756_8f5a7e9fb0c1_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -366,7 +386,7 @@ v_c28ae684_785a_4442_8756_8f5a7e9fb0c1_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, v_34e50ebc_ea2b_4714_81a1_ae8fca22c399); 
+        nlb:nlbwalk(v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, false); 
     return;
 end;
     end,
@@ -428,6 +448,7 @@ pn();
     end,
     walk_to = "v_ffa05a49_c979_4e9f_9b89_42936e21b81a_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -487,7 +508,7 @@ v_ffa05a49_c979_4e9f_9b89_42936e21b81a_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_ffa05a49_c979_4e9f_9b89_42936e21b81a, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1); 
+        nlb:nlbwalk(v_ffa05a49_c979_4e9f_9b89_42936e21b81a, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, false); 
     return;
 end;
     end,
@@ -521,6 +542,7 @@ pn();
     end,
     walk_to = "v_a2b6a777_a95c_4518_8623_ec797a483c46_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -579,7 +601,7 @@ v_a2b6a777_a95c_4518_8623_ec797a483c46_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_a2b6a777_a95c_4518_8623_ec797a483c46, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1); 
+        nlb:nlbwalk(v_a2b6a777_a95c_4518_8623_ec797a483c46, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, false); 
     return;
 end;
     end,
@@ -613,6 +635,7 @@ pn();
     end,
     walk_to = "v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -690,7 +713,7 @@ v_ba3735f7_403c_429f_8934_af62231d8565 = menu {
     nam = "v_ba3735f7_403c_429f_8934_af62231d8565",
     dsc = function(s) return "{Съесть врача}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717, v_d937c5c1_766c_4581_a03e_736560b0cc8f); 
+        nlb:nlbwalk(v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717, v_d937c5c1_766c_4581_a03e_736560b0cc8f, false); 
     end
 }
 
@@ -698,7 +721,7 @@ v_36d93e4f_19f9_489d_94a4_7fc5ba630d7a = menu {
     nam = "v_36d93e4f_19f9_489d_94a4_7fc5ba630d7a",
     dsc = function(s) return "{Съесть труп}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717, v_a2b6a777_a95c_4518_8623_ec797a483c46); 
+        nlb:nlbwalk(v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717, v_a2b6a777_a95c_4518_8623_ec797a483c46, false); 
     end
 }
 
@@ -727,6 +750,7 @@ pn();
     end,
     walk_to = "v_d937c5c1_766c_4581_a03e_736560b0cc8f_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -787,7 +811,7 @@ v_d937c5c1_766c_4581_a03e_736560b0cc8f_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_d937c5c1_766c_4581_a03e_736560b0cc8f, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1); 
+        nlb:nlbwalk(v_d937c5c1_766c_4581_a03e_736560b0cc8f, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, false); 
     return;
 end;
     end,
@@ -841,6 +865,7 @@ pn();
     end,
     walk_to = "v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -924,7 +949,7 @@ v_dedde941_43c9_46c6_89f9_799e86c17e08 = menu {
     nam = "v_dedde941_43c9_46c6_89f9_799e86c17e08",
     dsc = function(s) return "{Попытаться прорваться сквозь полицию}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6, v_b12a01be_cd61_4dba_b427_1ce3afc06fc6); 
+        nlb:nlbwalk(v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6, v_b12a01be_cd61_4dba_b427_1ce3afc06fc6, false); 
     end
 }
 
@@ -932,7 +957,7 @@ v_a9ba0ac9_1fcf_499c_a53c_6f41811649be = menu {
     nam = "v_a9ba0ac9_1fcf_499c_a53c_6f41811649be",
     dsc = function(s) return "{Перепрыгнуть через забор}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6, v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5); 
+        nlb:nlbwalk(v_f12432d9_dd8f_40fc_97bd_f9a15cc21ff6, v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5, false); 
     end
 }
 
@@ -973,6 +998,7 @@ pn();
     end,
     walk_to = "v_b12a01be_cd61_4dba_b427_1ce3afc06fc6_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1032,7 +1058,7 @@ v_b12a01be_cd61_4dba_b427_1ce3afc06fc6_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_b12a01be_cd61_4dba_b427_1ce3afc06fc6, v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717); 
+        nlb:nlbwalk(v_b12a01be_cd61_4dba_b427_1ce3afc06fc6, v_8c1fa8c6_8027_43c8_8d8b_0bf454d5e717, false); 
     return;
 end;
     end,
@@ -1068,6 +1094,7 @@ pn();
     end,
     walk_to = "v_85d2e46d_074a_4925_b54d_4a52299d9d93_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1127,7 +1154,7 @@ v_85d2e46d_074a_4925_b54d_4a52299d9d93_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_85d2e46d_074a_4925_b54d_4a52299d9d93, v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915); 
+        nlb:nlbwalk(v_85d2e46d_074a_4925_b54d_4a52299d9d93, v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, false); 
     return;
 end;
     end,
@@ -1169,6 +1196,7 @@ pn();
     end,
     walk_to = "v_5a8afdd9_5412_424e_b72e_1373d99795a2_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1227,7 +1255,7 @@ v_5a8afdd9_5412_424e_b72e_1373d99795a2_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_5a8afdd9_5412_424e_b72e_1373d99795a2, v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915); 
+        nlb:nlbwalk(v_5a8afdd9_5412_424e_b72e_1373d99795a2, v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, false); 
     return;
 end;
     end,
@@ -1271,6 +1299,7 @@ pn();
     end,
     walk_to = "v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1347,7 +1376,7 @@ v_167bc539_44e2_41f0_83c9_78dee52b4602 = menu {
     nam = "v_167bc539_44e2_41f0_83c9_78dee52b4602",
     dsc = function(s) return "{Съесть грабителя}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5, v_85d2e46d_074a_4925_b54d_4a52299d9d93); 
+        nlb:nlbwalk(v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5, v_85d2e46d_074a_4925_b54d_4a52299d9d93, false); 
     end
 }
 
@@ -1355,7 +1384,7 @@ v_69073172_bc58_4080_90a2_b011140925f4 = menu {
     nam = "v_69073172_bc58_4080_90a2_b011140925f4",
     dsc = function(s) return "{Прогнать грабителя}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5, v_5a8afdd9_5412_424e_b72e_1373d99795a2); 
+        nlb:nlbwalk(v_5b5d038f_ce4d_4cc8_8bee_81de8528b1a5, v_5a8afdd9_5412_424e_b72e_1373d99795a2, false); 
     end
 }
 
@@ -1370,13 +1399,14 @@ v_34e50ebc_ea2b_4714_81a1_ae8fca22c399 = vnr {
     dsc = function(s)
     end,
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if ((_barExit)) then         nlb:nlbwalk(v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981); 
+        if ((_barExit)) then         nlb:nlbwalk(v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, false); 
 
         return false;
  end;
-        if (( not _barExit)) then         nlb:nlbwalk(v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, v_4a4652ec_a6c1_4619_b82e_d469e6227589); 
+        if (( not _barExit)) then         nlb:nlbwalk(v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, v_4a4652ec_a6c1_4619_b82e_d469e6227589, true); 
 
         return false;
  end;
@@ -1451,6 +1481,7 @@ pn();
     end,
     walk_to = "v_4a4652ec_a6c1_4619_b82e_d469e6227589_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1510,7 +1541,7 @@ v_4a4652ec_a6c1_4619_b82e_d469e6227589_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _barExit) then
-        nlb:nlbwalk(v_4a4652ec_a6c1_4619_b82e_d469e6227589, v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b); 
+        nlb:nlbwalk(v_4a4652ec_a6c1_4619_b82e_d469e6227589, v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b, false); 
     return;
 end;
     end,
@@ -1540,6 +1571,7 @@ pn();
     end,
     walk_to = "v_a470c96a_d30d_4944_80b4_4623c297afe3_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1620,7 +1652,7 @@ v_f39496db_aea7_4694_9937_b261503b7bdc = menu {
     nam = "v_f39496db_aea7_4694_9937_b261503b7bdc",
     dsc = function(s) return "{Съесть философа}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_a470c96a_d30d_4944_80b4_4623c297afe3, v_46fc2603_670d_4e23_8ce1_618e20143ea2); 
+        nlb:nlbwalk(v_a470c96a_d30d_4944_80b4_4623c297afe3, v_46fc2603_670d_4e23_8ce1_618e20143ea2, false); 
     end
 }
 
@@ -1628,7 +1660,7 @@ v_cb8d4efa_0386_4ceb_8e54_9b551048d9af = menu {
     nam = "v_cb8d4efa_0386_4ceb_8e54_9b551048d9af",
     dsc = function(s) return "{Украсть еду с кухни}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_a470c96a_d30d_4944_80b4_4623c297afe3, v_338bd8d1_fc55_42c0_8e67_65f58628a5c0); 
+        nlb:nlbwalk(v_a470c96a_d30d_4944_80b4_4623c297afe3, v_338bd8d1_fc55_42c0_8e67_65f58628a5c0, false); 
     end
 }
 
@@ -1649,6 +1681,7 @@ pn();
     end,
     walk_to = "v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1707,11 +1740,11 @@ v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (( not _barExit) and (_wolfiness <= 0)) then
-        nlb:nlbwalk(v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b, v_94e84eb0_0ba0_475f_b839_71da445fa595); 
+        nlb:nlbwalk(v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b, v_94e84eb0_0ba0_475f_b839_71da445fa595, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (( not _barExit) and (_wolfiness > 0)) then
-        nlb:nlbwalk(v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b, v_b2f0838e_3068_4850_ad2f_4944075de38b); 
+        nlb:nlbwalk(v_2ff7b229_4eb9_4c30_8962_4d8ed95a490b, v_b2f0838e_3068_4850_ad2f_4944075de38b, false); 
     return;
 end;
     end,
@@ -1745,6 +1778,7 @@ pn();
     end,
     walk_to = "v_338bd8d1_fc55_42c0_8e67_65f58628a5c0_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1803,7 +1837,7 @@ v_338bd8d1_fc55_42c0_8e67_65f58628a5c0_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _barExit) then
-        nlb:nlbwalk(v_338bd8d1_fc55_42c0_8e67_65f58628a5c0, v_e40f707a_3934_43b4_b302_9ea6b4461531); 
+        nlb:nlbwalk(v_338bd8d1_fc55_42c0_8e67_65f58628a5c0, v_e40f707a_3934_43b4_b302_9ea6b4461531, false); 
     return;
 end;
     end,
@@ -1833,6 +1867,7 @@ pn();
     end,
     walk_to = "v_46fc2603_670d_4e23_8ce1_618e20143ea2_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -1893,7 +1928,7 @@ v_46fc2603_670d_4e23_8ce1_618e20143ea2_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _barExit) then
-        nlb:nlbwalk(v_46fc2603_670d_4e23_8ce1_618e20143ea2, v_e40f707a_3934_43b4_b302_9ea6b4461531); 
+        nlb:nlbwalk(v_46fc2603_670d_4e23_8ce1_618e20143ea2, v_e40f707a_3934_43b4_b302_9ea6b4461531, false); 
     return;
 end;
     end,
@@ -1941,6 +1976,7 @@ pn();
     end,
     walk_to = "v_94e84eb0_0ba0_475f_b839_71da445fa595_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2000,7 +2036,7 @@ v_94e84eb0_0ba0_475f_b839_71da445fa595_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _barExit) then
-        nlb:nlbwalk(v_94e84eb0_0ba0_475f_b839_71da445fa595, v_a470c96a_d30d_4944_80b4_4623c297afe3); 
+        nlb:nlbwalk(v_94e84eb0_0ba0_475f_b839_71da445fa595, v_a470c96a_d30d_4944_80b4_4623c297afe3, false); 
     return;
 end;
     end,
@@ -2030,6 +2066,7 @@ pn();
     end,
     walk_to = "v_e40f707a_3934_43b4_b302_9ea6b4461531_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2089,7 +2126,7 @@ v_e40f707a_3934_43b4_b302_9ea6b4461531_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_e40f707a_3934_43b4_b302_9ea6b4461531, v_34e50ebc_ea2b_4714_81a1_ae8fca22c399); 
+        nlb:nlbwalk(v_e40f707a_3934_43b4_b302_9ea6b4461531, v_34e50ebc_ea2b_4714_81a1_ae8fca22c399, false); 
     return;
 end;
     end,
@@ -2124,7 +2161,9 @@ pn("-- Потрясающе! -- воскликнул мужик. -- Вы тип�
 pn();
 pn("-- Чего? -- не поняли вы.");
 pn();
-pn("-- Видите ли, я не всегда работал дальнобойщиком. По профессии я кандидат философских наук. Но жить на зарплату преподавателя... -- он вздохнул. -- Так вот, увидев вас, я отчего-то сразу вспомнил это мифическое существо. Оборотня.");
+pn("-- Видите ли, я не всегда работал дальнобойщиком. По профессии я кандидат философских наук. Но жить на зарплату преподавателя...");
+pn();
+pn(" -- он вздохнул. -- Так вот, увидев вас, я отчего-то сразу вспомнил это мифическое существо. Оборотня.");
 pn();
 pn("");
 pn();
@@ -2138,7 +2177,9 @@ pn("-- Достаточно накинуть волчью шкуру, произ
 pn();
 pn("В этот момент принесли чай, но вам было не до него. Вы вспомнили, как несколько дней назад гостили у одного товарища в загородном доме. Там вы действительно примеряли волчью шкуру…");
 pn();
-pn("-- Что самое интересное, -- продолжал философ, -- самый надёжный способ убить такого оборотня -- это вонзить в него кол из боярышника. Вы, я вижу, не хотите чай? Так я выпью, пока он не остыл. -- С этими словами мужик взял чашку и, прежде чем вы успели его остановить, сделал большой глоток.");
+pn("-- Что самое интересное, -- продолжал философ, -- самый надёжный способ убить такого оборотня -- это вонзить в него кол из боярышника.");
+pn();
+pn(" Вы, я вижу, не хотите чай? Так я выпью, пока он не остыл. -- С этими словами мужик взял чашку и, прежде чем вы успели его остановить, сделал большой глоток.");
 pn();
 pn("");
 pn();
@@ -2153,6 +2194,7 @@ pn();
     end,
     walk_to = "v_b2f0838e_3068_4850_ad2f_4944075de38b_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2212,7 +2254,7 @@ v_b2f0838e_3068_4850_ad2f_4944075de38b_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _barExit) then
-        nlb:nlbwalk(v_b2f0838e_3068_4850_ad2f_4944075de38b, v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1); 
+        nlb:nlbwalk(v_b2f0838e_3068_4850_ad2f_4944075de38b, v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1, false); 
     return;
 end;
     end,
@@ -2242,6 +2284,7 @@ pn();
     end,
     walk_to = "v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2322,7 +2365,7 @@ v_179d0a83_813c_461c_8ae4_257bedeea33a = menu {
     nam = "v_179d0a83_813c_461c_8ae4_257bedeea33a",
     dsc = function(s) return "{Съесть философа}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1, v_46fc2603_670d_4e23_8ce1_618e20143ea2); 
+        nlb:nlbwalk(v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1, v_46fc2603_670d_4e23_8ce1_618e20143ea2, false); 
     end
 }
 
@@ -2330,7 +2373,7 @@ v_fab7dbf7_e99d_44d0_80dc_a1ddc04088db = menu {
     nam = "v_fab7dbf7_e99d_44d0_80dc_a1ddc04088db",
     dsc = function(s) return "{Украсть еду с кухни}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1, v_338bd8d1_fc55_42c0_8e67_65f58628a5c0); 
+        nlb:nlbwalk(v_0f773e1b_130f_465d_a8e5_3cabc8bfc1d1, v_338bd8d1_fc55_42c0_8e67_65f58628a5c0, false); 
     end
 }
 
@@ -2367,6 +2410,7 @@ pn();
     end,
     walk_to = "v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2427,11 +2471,11 @@ v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (_wolfiness > 0) then
-        nlb:nlbwalk(v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, v_30f2da3a_76a3_40b2_84f0_41714eb48ae4); 
+        nlb:nlbwalk(v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, v_30f2da3a_76a3_40b2_84f0_41714eb48ae4, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness <= 0) then
-        nlb:nlbwalk(v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, v_ffa05a49_c979_4e9f_9b89_42936e21b81a); 
+        nlb:nlbwalk(v_5d3bc0dc_ad8f_48d9_ba6d_66a39afd9915, v_ffa05a49_c979_4e9f_9b89_42936e21b81a, false); 
     return;
 end;
     end,
@@ -2455,13 +2499,14 @@ v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981 = vnr {
     dsc = function(s)
     end,
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if ((_forestExit)) then         nlb:nlbwalk(v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3); 
+        if ((_forestExit)) then         nlb:nlbwalk(v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, false); 
 
         return false;
  end;
-        if (( not _forestExit)) then         nlb:nlbwalk(v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, v_8bee9a84_d4f6_4ccd_857e_873bd07eb922); 
+        if (( not _forestExit)) then         nlb:nlbwalk(v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, true); 
 
         return false;
  end;
@@ -2527,9 +2572,10 @@ v_8bee9a84_d4f6_4ccd_857e_873bd07eb922 = vnr {
     end,
     walk_to = "v_8bee9a84_d4f6_4ccd_857e_873bd07eb922_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if (true) then         nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_05837065_8160_469f_8b29_e07d87549656); 
+        if (true) then         nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_05837065_8160_469f_8b29_e07d87549656, true); 
 
         return false;
  end;
@@ -2615,7 +2661,7 @@ v_93a2e5c6_177f_4c0d_8437_a6691403960b = menu {
     nam = "v_93a2e5c6_177f_4c0d_8437_a6691403960b",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_67573c54_0976_4a54_a3c9_f70696f5feae); 
+        nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_67573c54_0976_4a54_a3c9_f70696f5feae, false); 
     end
 }
 
@@ -2623,7 +2669,7 @@ v_8c641e8f_9d6b_4d0d_8551_1092f4fe3808 = menu {
     nam = "v_8c641e8f_9d6b_4d0d_8551_1092f4fe3808",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_f293bb53_86f5_4600_ac29_3b60e8da760e); 
+        nlb:nlbwalk(v_8bee9a84_d4f6_4ccd_857e_873bd07eb922, v_f293bb53_86f5_4600_ac29_3b60e8da760e, false); 
     end
 }
 
@@ -2644,6 +2690,7 @@ pn();
     end,
     walk_to = "v_05837065_8160_469f_8b29_e07d87549656_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2703,11 +2750,11 @@ v_05837065_8160_469f_8b29_e07d87549656_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (_wolfiness > 1) then
-        nlb:nlbwalk(v_05837065_8160_469f_8b29_e07d87549656, v_3792ac23_4da9_4539_a393_95780a98771a); 
+        nlb:nlbwalk(v_05837065_8160_469f_8b29_e07d87549656, v_3792ac23_4da9_4539_a393_95780a98771a, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness <= 1) then
-        nlb:nlbwalk(v_05837065_8160_469f_8b29_e07d87549656, v_58180cad_f8db_42f7_a04a_994e1c56f991); 
+        nlb:nlbwalk(v_05837065_8160_469f_8b29_e07d87549656, v_58180cad_f8db_42f7_a04a_994e1c56f991, false); 
     return;
 end;
     end,
@@ -2737,6 +2784,7 @@ pn();
     end,
     walk_to = "v_3792ac23_4da9_4539_a393_95780a98771a_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2813,7 +2861,7 @@ v_3792ac23_4da9_4539_a393_95780a98771a_67573c54_0976_4a54_a3c9_f70696f5feae_93a2
     nam = "v_3792ac23_4da9_4539_a393_95780a98771a_67573c54_0976_4a54_a3c9_f70696f5feae_93a2e5c6_177f_4c0d_8437_a6691403960b_Return",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_3792ac23_4da9_4539_a393_95780a98771a, v_67573c54_0976_4a54_a3c9_f70696f5feae); 
+        nlb:nlbwalk(v_3792ac23_4da9_4539_a393_95780a98771a, v_67573c54_0976_4a54_a3c9_f70696f5feae, false); 
     end
 }
 
@@ -2821,7 +2869,7 @@ v_3792ac23_4da9_4539_a393_95780a98771a_f293bb53_86f5_4600_ac29_3b60e8da760e_8c64
     nam = "v_3792ac23_4da9_4539_a393_95780a98771a_f293bb53_86f5_4600_ac29_3b60e8da760e_8c641e8f_9d6b_4d0d_8551_1092f4fe3808_Return",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_3792ac23_4da9_4539_a393_95780a98771a, v_f293bb53_86f5_4600_ac29_3b60e8da760e); 
+        nlb:nlbwalk(v_3792ac23_4da9_4539_a393_95780a98771a, v_f293bb53_86f5_4600_ac29_3b60e8da760e, false); 
     end
 }
 
@@ -2842,6 +2890,7 @@ pn();
     end,
     walk_to = "v_58180cad_f8db_42f7_a04a_994e1c56f991_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -2918,7 +2967,7 @@ v_58180cad_f8db_42f7_a04a_994e1c56f991_67573c54_0976_4a54_a3c9_f70696f5feae_93a2
     nam = "v_58180cad_f8db_42f7_a04a_994e1c56f991_67573c54_0976_4a54_a3c9_f70696f5feae_93a2e5c6_177f_4c0d_8437_a6691403960b_Return",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_58180cad_f8db_42f7_a04a_994e1c56f991, v_67573c54_0976_4a54_a3c9_f70696f5feae); 
+        nlb:nlbwalk(v_58180cad_f8db_42f7_a04a_994e1c56f991, v_67573c54_0976_4a54_a3c9_f70696f5feae, false); 
     end
 }
 
@@ -2926,7 +2975,7 @@ v_58180cad_f8db_42f7_a04a_994e1c56f991_f293bb53_86f5_4600_ac29_3b60e8da760e_8c64
     nam = "v_58180cad_f8db_42f7_a04a_994e1c56f991_f293bb53_86f5_4600_ac29_3b60e8da760e_8c641e8f_9d6b_4d0d_8551_1092f4fe3808_Return",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_58180cad_f8db_42f7_a04a_994e1c56f991, v_f293bb53_86f5_4600_ac29_3b60e8da760e); 
+        nlb:nlbwalk(v_58180cad_f8db_42f7_a04a_994e1c56f991, v_f293bb53_86f5_4600_ac29_3b60e8da760e, false); 
     end
 }
 
@@ -2947,6 +2996,7 @@ pn();
     end,
     walk_to = "v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3007,7 +3057,7 @@ v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981); 
+        nlb:nlbwalk(v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, v_5ce20904_0ac9_422b_b8c6_ad6dbc89d981, false); 
     return;
 end;
     end,
@@ -3037,6 +3087,7 @@ pn();
     end,
     walk_to = "v_f87e0749_c4b3_4a3f_878b_47964d1994ab_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3117,7 +3168,7 @@ v_012bbd53_638b_4d2b_8021_95c1b0e5e1eb = menu {
     nam = "v_012bbd53_638b_4d2b_8021_95c1b0e5e1eb",
     dsc = function(s) return "{Съесть путника}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f87e0749_c4b3_4a3f_878b_47964d1994ab, v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f); 
+        nlb:nlbwalk(v_f87e0749_c4b3_4a3f_878b_47964d1994ab, v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f, false); 
     end
 }
 
@@ -3125,7 +3176,7 @@ v_adf150b2_c8de_4dda_95ac_3ab56f281157 = menu {
     nam = "v_adf150b2_c8de_4dda_95ac_3ab56f281157",
     dsc = function(s) return "{Не есть путника}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f87e0749_c4b3_4a3f_878b_47964d1994ab, v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb); 
+        nlb:nlbwalk(v_f87e0749_c4b3_4a3f_878b_47964d1994ab, v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb, false); 
     end
 }
 
@@ -3146,6 +3197,7 @@ pn();
     end,
     walk_to = "v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3205,7 +3257,7 @@ v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _forestExit) then
-        nlb:nlbwalk(v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_db1bdcfc_0184_46ea_8194_d7cdbbf3b8fb, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     return;
 end;
     end,
@@ -3235,6 +3287,7 @@ pn();
     end,
     walk_to = "v_67573c54_0976_4a54_a3c9_f70696f5feae_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3315,7 +3368,7 @@ v_97edec47_7e41_4e6d_886a_e3c29ddaaca4 = menu {
     nam = "v_97edec47_7e41_4e6d_886a_e3c29ddaaca4",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_67573c54_0976_4a54_a3c9_f70696f5feae, v_f87e0749_c4b3_4a3f_878b_47964d1994ab); 
+        nlb:nlbwalk(v_67573c54_0976_4a54_a3c9_f70696f5feae, v_f87e0749_c4b3_4a3f_878b_47964d1994ab, false); 
     end
 }
 
@@ -3323,7 +3376,7 @@ v_2fd1636c_29c5_42dc_bf75_bac572830904 = menu {
     nam = "v_2fd1636c_29c5_42dc_bf75_bac572830904",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_67573c54_0976_4a54_a3c9_f70696f5feae, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_67573c54_0976_4a54_a3c9_f70696f5feae, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     end
 }
 
@@ -3344,6 +3397,7 @@ pn();
     end,
     walk_to = "v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3404,7 +3458,7 @@ v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _forestExit) then
-        nlb:nlbwalk(v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_0d9f5052_9f0a_4a5d_892b_05d8ac7f713f, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     return;
 end;
     end,
@@ -3429,9 +3483,10 @@ v_f293bb53_86f5_4600_ac29_3b60e8da760e = vnr {
     end,
     walk_to = "v_f293bb53_86f5_4600_ac29_3b60e8da760e_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if (true) then         nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_e10b657b_d06c_4b34_be66_a7322266755c); 
+        if (true) then         nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_e10b657b_d06c_4b34_be66_a7322266755c, true); 
 
         return false;
  end;
@@ -3517,7 +3572,7 @@ v_cc1a2ff4_84e8_4357_bbce_5dd14271a658 = menu {
     nam = "v_cc1a2ff4_84e8_4357_bbce_5dd14271a658",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_f87e0749_c4b3_4a3f_878b_47964d1994ab); 
+        nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_f87e0749_c4b3_4a3f_878b_47964d1994ab, false); 
     end
 }
 
@@ -3525,7 +3580,7 @@ v_b9cfbc2f_51dd_4e99_8a84_190ef08eb1c0 = menu {
     nam = "v_b9cfbc2f_51dd_4e99_8a84_190ef08eb1c0",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_f293bb53_86f5_4600_ac29_3b60e8da760e, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     end
 }
 
@@ -3546,6 +3601,7 @@ pn();
     end,
     walk_to = "v_e10b657b_d06c_4b34_be66_a7322266755c_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3605,11 +3661,11 @@ v_e10b657b_d06c_4b34_be66_a7322266755c_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (_wolfiness > 1) then
-        nlb:nlbwalk(v_e10b657b_d06c_4b34_be66_a7322266755c, v_4d0291af_49a6_42ab_ae94_4e039cb15072); 
+        nlb:nlbwalk(v_e10b657b_d06c_4b34_be66_a7322266755c, v_4d0291af_49a6_42ab_ae94_4e039cb15072, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness <= 1) then
-        nlb:nlbwalk(v_e10b657b_d06c_4b34_be66_a7322266755c, v_a27840f3_04f2_4156_8854_1abf0061e0c9); 
+        nlb:nlbwalk(v_e10b657b_d06c_4b34_be66_a7322266755c, v_a27840f3_04f2_4156_8854_1abf0061e0c9, false); 
     return;
 end;
     end,
@@ -3653,6 +3709,7 @@ pn();
     end,
     walk_to = "v_4d0291af_49a6_42ab_ae94_4e039cb15072_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3731,7 +3788,7 @@ v_4d0291af_49a6_42ab_ae94_4e039cb15072_f87e0749_c4b3_4a3f_878b_47964d1994ab_cc1a
     nam = "v_4d0291af_49a6_42ab_ae94_4e039cb15072_f87e0749_c4b3_4a3f_878b_47964d1994ab_cc1a2ff4_84e8_4357_bbce_5dd14271a658_Return",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_4d0291af_49a6_42ab_ae94_4e039cb15072, v_f87e0749_c4b3_4a3f_878b_47964d1994ab); 
+        nlb:nlbwalk(v_4d0291af_49a6_42ab_ae94_4e039cb15072, v_f87e0749_c4b3_4a3f_878b_47964d1994ab, false); 
     end
 }
 
@@ -3739,7 +3796,7 @@ v_4d0291af_49a6_42ab_ae94_4e039cb15072_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_b9cf
     nam = "v_4d0291af_49a6_42ab_ae94_4e039cb15072_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_b9cfbc2f_51dd_4e99_8a84_190ef08eb1c0_Return",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_4d0291af_49a6_42ab_ae94_4e039cb15072, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_4d0291af_49a6_42ab_ae94_4e039cb15072, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     end
 }
 
@@ -3760,6 +3817,7 @@ pn();
     end,
     walk_to = "v_a27840f3_04f2_4156_8854_1abf0061e0c9_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -3836,7 +3894,7 @@ v_a27840f3_04f2_4156_8854_1abf0061e0c9_f87e0749_c4b3_4a3f_878b_47964d1994ab_cc1a
     nam = "v_a27840f3_04f2_4156_8854_1abf0061e0c9_f87e0749_c4b3_4a3f_878b_47964d1994ab_cc1a2ff4_84e8_4357_bbce_5dd14271a658_Return",
     dsc = function(s) return "{Налево}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_a27840f3_04f2_4156_8854_1abf0061e0c9, v_f87e0749_c4b3_4a3f_878b_47964d1994ab); 
+        nlb:nlbwalk(v_a27840f3_04f2_4156_8854_1abf0061e0c9, v_f87e0749_c4b3_4a3f_878b_47964d1994ab, false); 
     end
 }
 
@@ -3844,7 +3902,7 @@ v_a27840f3_04f2_4156_8854_1abf0061e0c9_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_b9cf
     nam = "v_a27840f3_04f2_4156_8854_1abf0061e0c9_86893ac1_6506_4fdd_bbfc_8008d6ad6b31_b9cfbc2f_51dd_4e99_8a84_190ef08eb1c0_Return",
     dsc = function(s) return "{Направо}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_a27840f3_04f2_4156_8854_1abf0061e0c9, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31); 
+        nlb:nlbwalk(v_a27840f3_04f2_4156_8854_1abf0061e0c9, v_86893ac1_6506_4fdd_bbfc_8008d6ad6b31, false); 
     end
 }
 
@@ -3859,13 +3917,14 @@ v_b45ff8f3_4052_467e_bffa_4a420b67a7b3 = vnr {
     dsc = function(s)
     end,
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if ((_guardDone)) then         nlb:nlbwalk(v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, v_d5044b52_9786_43aa_b097_67a7b3220d6a); 
+        if ((_guardDone)) then         nlb:nlbwalk(v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, v_d5044b52_9786_43aa_b097_67a7b3220d6a, false); 
 
         return false;
  end;
-        if (( not _guardDone)) then         nlb:nlbwalk(v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, v_5848772f_134b_412e_9e5e_f9d2feedb3b0); 
+        if (( not _guardDone)) then         nlb:nlbwalk(v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, v_5848772f_134b_412e_9e5e_f9d2feedb3b0, true); 
 
         return false;
  end;
@@ -3943,6 +4002,7 @@ pn();
     end,
     walk_to = "v_5848772f_134b_412e_9e5e_f9d2feedb3b0_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4002,11 +4062,105 @@ v_5848772f_134b_412e_9e5e_f9d2feedb3b0_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (( not _guardDone) and (_wolfiness > 1)) then
-        nlb:nlbwalk(v_5848772f_134b_412e_9e5e_f9d2feedb3b0, v_0e3e04d8_03e7_459d_8136_e7c135100101); 
+        nlb:nlbwalk(v_5848772f_134b_412e_9e5e_f9d2feedb3b0, v_0e3e04d8_03e7_459d_8136_e7c135100101, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (( not _guardDone) and (_wolfiness <= 1)) then
-        nlb:nlbwalk(v_5848772f_134b_412e_9e5e_f9d2feedb3b0, v_433426b4_2e3f_4461_ab7a_e87119808471); 
+        nlb:nlbwalk(v_5848772f_134b_412e_9e5e_f9d2feedb3b0, v_433426b4_2e3f_4461_ab7a_e87119808471, false); 
+    return;
+end;
+    end,
+    theme_file = function(s) return "theme_vn.lua"; end,
+    initf = function(s) 
+        return vn:auto_geom_choices('dissolve');
+    end,
+    exit = function(s) 
+        if s.paginator_state then paginator:turnon(); end;
+    end
+}
+
+-- 33. Драка, победа, -1 жизнь
+v_bc738a80_9890_4416_bead_3bbc8f533412 = vnr {
+    nam = 'Am I a Monster?',
+    notes = '33. Драка, победа, -1 жизнь',
+    bgimg = function(s)
+        if (true) then
+            return 'images/33.jpg';
+        end
+
+    end,
+    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
+    dsc = function(s)
+pn("Соорудив примитивное оружие, вы вернулись к особняку. Вас встретил мускулистый лохматый мужчина. По выражению его лица вы поняли, что он по-прежнему не собирается вас пропускать.");
+pn();
+pn(" Оборотень кинулся на вас. Вы резко выбросили из-за спины руку с зажатым в ней колом. Охранник, не успев остановиться, налетел грудью прямо на острую палку.");
+pn();
+pn("");
+pn();
+    end,
+    walk_to = "v_bc738a80_9890_4416_bead_3bbc8f533412_choices",
+    autos = function(s)
+        update_action_count();
+        nlb:revive();
+        nlb:ways_chk(s);
+        return true;
+    end,
+    nextsnd = function(s)
+        local sndfile = nlb:pop('v_bc738a80_9890_4416_bead_3bbc8f533412_snds');
+        if sndfile ~= nil then
+            s.sndout(s);
+            add_sound(sndfile);
+        end;
+    end,
+    theme_file = function(s)
+        return 'theme_vn.lua';
+    end,
+    enter = function(s, f)
+        nlb:theme_switch(s:theme_file());
+        s.lasttext = nil;
+        s.wastext = false;
+        if not (f.autowired) then
+_hp = _hp - 1;
+        end;
+        s:initf();
+    end,
+    initf = function(s)
+        s.snd(s);
+        local bg_img = s.bgimg(s);
+        nlb:revive();
+        nlb:ways_chk(s);
+        vn:scene(bg_img);
+        local geomFuncNeedToCall = true;
+        if geomFuncNeedToCall then
+            vn:auto_geom('dissolve', function() s.autos(s); end);
+        end;
+        return vn:get_win_coords();
+    end,
+    exit = function(s, t)
+        s.sndout(s);
+        s.wastext = false;
+        s.lasttext = nil;
+    end,
+    life = function(s)
+        if vn.stopped then s.autos(s); end;
+    end,
+    snd = function(s) 
+    end,
+    sndout = function(s) end,
+};
+
+v_bc738a80_9890_4416_bead_3bbc8f533412_choices = vn_choices {
+    nam = "Am I a Monster?",
+    disp = true,
+    textbg = true,
+    ignore_preserved_gobjs = true,
+    var { paginator_state = false; },
+    enter = function(s) 
+        s.paginator_state = paginator.on;
+        objs():zap();
+        paginator:turnoff();
+if ( not _guardDone) then
+        nlb:nlbwalk(v_bc738a80_9890_4416_bead_3bbc8f533412, v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46, false); 
     return;
 end;
     end,
@@ -4040,6 +4194,7 @@ pn();
     end,
     walk_to = "v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4099,7 +4254,116 @@ v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _guardDone) then
-        nlb:nlbwalk(v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9, v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e); 
+        nlb:nlbwalk(v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9, v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e, false); 
+    return;
+end;
+    end,
+    theme_file = function(s) return "theme_vn.lua"; end,
+    initf = function(s) 
+        return vn:auto_geom_choices('dissolve');
+    end,
+    exit = function(s) 
+        if s.paginator_state then paginator:turnon(); end;
+    end
+}
+
+-- 26.
+v_0e3e04d8_03e7_459d_8136_e7c135100101 = vnr {
+    nam = 'Am I a Monster?',
+    notes = '26.',
+    bgimg = function(s)
+        if (true) then
+            return 'images/26.jpg';
+        end
+
+    end,
+    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
+    dsc = function(s)
+pn("Внезапно раздалось рычание, и перед вами возник волк с оскаленной мордой. Это был огромный зверь, крупнее вас.");
+pn();
+pn(" Вы приготовились к драке, но монстр не спешил нападать. Шумно втянув носом воздух, он заговорил с вами:");
+pn();
+pn("");
+pn();
+pn("-- Кто ты? Откуда здесь взялся?");
+pn();
+pn("-- Хозяин этого дома сделал меня оборотнем. Я пришёл, чтобы разделаться с ним, -- честно ответили вы.");
+pn();
+pn("-- Ты тоже надевал волчью шкуру? -- уже мягче спросил зверь.");
+pn();
+pn("-- Да.");
+pn();
+pn("-- Меня он превратил тем же способом. Теперь я у него что-то вроде сторожевого пса, -- с тоской сообщил оборотень. -- Человеком мне уже не стать. А у тебя ещё есть шанс?");
+pn();
+pn("-- Не знаю. Но очень надеюсь.");
+pn();
+    end,
+    walk_to = "v_0e3e04d8_03e7_459d_8136_e7c135100101_choices",
+    autos = function(s)
+        update_action_count();
+        nlb:revive();
+        nlb:ways_chk(s);
+        return true;
+    end,
+    nextsnd = function(s)
+        local sndfile = nlb:pop('v_0e3e04d8_03e7_459d_8136_e7c135100101_snds');
+        if sndfile ~= nil then
+            s.sndout(s);
+            add_sound(sndfile);
+        end;
+    end,
+    theme_file = function(s)
+        return 'theme_vn.lua';
+    end,
+    enter = function(s, f)
+        nlb:theme_switch(s:theme_file());
+        s.lasttext = nil;
+        s.wastext = false;
+        if not (f.autowired) then
+        end;
+        s:initf();
+    end,
+    initf = function(s)
+        s.snd(s);
+        local bg_img = s.bgimg(s);
+        nlb:revive();
+        nlb:ways_chk(s);
+        vn:scene(bg_img);
+        local geomFuncNeedToCall = true;
+        if geomFuncNeedToCall then
+            vn:auto_geom('dissolve', function() s.autos(s); end);
+        end;
+        return vn:get_win_coords();
+    end,
+    exit = function(s, t)
+        s.sndout(s);
+        s.wastext = false;
+        s.lasttext = nil;
+    end,
+    life = function(s)
+        if vn.stopped then s.autos(s); end;
+    end,
+    snd = function(s) 
+    end,
+    sndout = function(s) end,
+};
+
+v_0e3e04d8_03e7_459d_8136_e7c135100101_choices = vn_choices {
+    nam = "Am I a Monster?",
+    disp = true,
+    textbg = true,
+    ignore_preserved_gobjs = true,
+    var { paginator_state = false; },
+    enter = function(s) 
+        s.paginator_state = paginator.on;
+        objs():zap();
+        paginator:turnoff();
+if (( not _guardDone) and (_wolvesTalk)) then
+        nlb:nlbwalk(v_0e3e04d8_03e7_459d_8136_e7c135100101, v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3, false); 
+    return;
+end;
+if (( not _guardDone) and ( not _wolvesTalk)) then
+        nlb:nlbwalk(v_0e3e04d8_03e7_459d_8136_e7c135100101, v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9, false); 
     return;
 end;
     end,
@@ -4129,6 +4393,7 @@ pn();
     end,
     walk_to = "v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4189,7 +4454,7 @@ v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3); 
+        nlb:nlbwalk(v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, false); 
     return;
 end;
     end,
@@ -4231,6 +4496,7 @@ pn();
     end,
     walk_to = "v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4290,7 +4556,7 @@ v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _guardDone) then
-        nlb:nlbwalk(v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3, v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e); 
+        nlb:nlbwalk(v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3, v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e, false); 
     return;
 end;
     end,
@@ -4320,6 +4586,7 @@ pn();
     end,
     walk_to = "v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4379,7 +4646,7 @@ v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3); 
+        nlb:nlbwalk(v_d6b53c8e_e4ae_492c_8489_89a67cf8d41e, v_b45ff8f3_4052_467e_bffa_4a420b67a7b3, false); 
     return;
 end;
     end,
@@ -4425,6 +4692,7 @@ pn();
     end,
     walk_to = "v_433426b4_2e3f_4461_ab7a_e87119808471_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4484,7 +4752,7 @@ v_433426b4_2e3f_4461_ab7a_e87119808471_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _guardDone) then
-        nlb:nlbwalk(v_433426b4_2e3f_4461_ab7a_e87119808471, v_0848f12f_cff7_4d6d_b67a_b1b996eb6322); 
+        nlb:nlbwalk(v_433426b4_2e3f_4461_ab7a_e87119808471, v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, false); 
     return;
 end;
     end,
@@ -4514,6 +4782,7 @@ pn();
     end,
     walk_to = "v_7e4ded08_354b_4c76_b876_2e8ac335fdad_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -4572,393 +4841,7 @@ v_7e4ded08_354b_4c76_b876_2e8ac335fdad_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if ( not _guardDone) then
-        nlb:nlbwalk(v_7e4ded08_354b_4c76_b876_2e8ac335fdad, v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c); 
-    return;
-end;
-    end,
-    theme_file = function(s) return "theme_vn.lua"; end,
-    initf = function(s) 
-        return vn:auto_geom_choices('dissolve');
-    end,
-    exit = function(s) 
-        if s.paginator_state then paginator:turnon(); end;
-    end
-}
-
--- 31. Вы взяли рябину
-v_b8eecad7_8e40_4397_87de_e794189f7bf5 = vnr {
-    nam = 'Am I a Monster?',
-    notes = '31. Вы взяли рябину',
-    bgimg = function(s)
-        if (true) then
-            return 'images/31.jpg';
-        end
-
-    end,
-    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
-    dsc = function(s)
-pn("На глаза вам попалась раскидистая рябина.");
-pn();
-    end,
-    walk_to = "v_b8eecad7_8e40_4397_87de_e794189f7bf5_choices",
-    autos = function(s)
-        nlb:revive();
-        nlb:ways_chk(s);
-        return true;
-    end,
-    nextsnd = function(s)
-        local sndfile = nlb:pop('v_b8eecad7_8e40_4397_87de_e794189f7bf5_snds');
-        if sndfile ~= nil then
-            s.sndout(s);
-            add_sound(sndfile);
-        end;
-    end,
-    theme_file = function(s)
-        return 'theme_vn.lua';
-    end,
-    enter = function(s, f)
-        nlb:theme_switch(s:theme_file());
-        s.lasttext = nil;
-        s.wastext = false;
-        if not (f.autowired) then
-        end;
-        s:initf();
-    end,
-    initf = function(s)
-        s.snd(s);
-        local bg_img = s.bgimg(s);
-        nlb:revive();
-        nlb:ways_chk(s);
-        vn:scene(bg_img);
-        local geomFuncNeedToCall = true;
-        if geomFuncNeedToCall then
-            vn:auto_geom('dissolve', function() s.autos(s); end);
-        end;
-        return vn:get_win_coords();
-    end,
-    exit = function(s, t)
-        s.sndout(s);
-        s.wastext = false;
-        s.lasttext = nil;
-    end,
-    life = function(s)
-        if vn.stopped then s.autos(s); end;
-    end,
-    snd = function(s) 
-    end,
-    sndout = function(s) end,
-};
-
-v_b8eecad7_8e40_4397_87de_e794189f7bf5_choices = vn_choices {
-    nam = "Am I a Monster?",
-    disp = true,
-    textbg = true,
-    ignore_preserved_gobjs = true,
-    var { paginator_state = false; },
-    enter = function(s) 
-        s.paginator_state = paginator.on;
-        objs():zap();
-        paginator:turnoff();
-if ( not _guardDone) then
-        nlb:nlbwalk(v_b8eecad7_8e40_4397_87de_e794189f7bf5, v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c); 
-    return;
-end;
-    end,
-    theme_file = function(s) return "theme_vn.lua"; end,
-    initf = function(s) 
-        return vn:auto_geom_choices('dissolve');
-    end,
-    exit = function(s) 
-        if s.paginator_state then paginator:turnon(); end;
-    end
-}
-
--- 34. Драка, конец
-v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c = vnr {
-    nam = 'Am I a Monster?',
-    notes = '34. Драка, конец',
-    bgimg = function(s)
-        if (true) then
-            return 'images/34.jpg';
-        end
-
-    end,
-    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
-    dsc = function(s)
-pn("На ней вы и остановили свой выбор. Вам удалось сломать толстую ветку под острым углом.  Соорудив примитивное оружие, вы вернулись к особняку.");
-pn();
-pn(" Вас встретил мускулистый лохматый мужчина. По выражению его лица вы поняли, что он по-прежнему не собирается вас пропускать.");
-pn();
-pn(" Оборотень кинулся на вас. Вы резко выбросили из-за спины руку с зажатым в ней колом. Охранник, не успев остановиться, налетел грудью прямо на острую палку. Он заревел от боли и бросился на вас. Из его смертельных объятий вам уже не суждено было выбраться.");
-pn();
-pn("");
-pn();
-    end,
-    walk_to = "v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_choices",
-    autos = function(s)
-        nlb:revive();
-        nlb:ways_chk(s);
-        return true;
-    end,
-    nextsnd = function(s)
-        local sndfile = nlb:pop('v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_snds');
-        if sndfile ~= nil then
-            s.sndout(s);
-            add_sound(sndfile);
-        end;
-    end,
-    theme_file = function(s)
-        return 'theme_vn.lua';
-    end,
-    enter = function(s, f)
-        nlb:theme_switch(s:theme_file());
-        s.lasttext = nil;
-        s.wastext = false;
-        if not (f.autowired) then
-nlb:setAchievement(statsAPI, 'WRONG_CHOICE', '82a5f73c-a804-46ce-8240-86b95c99f529');
-        end;
-        s:initf();
-    end,
-    initf = function(s)
-        s.snd(s);
-        local bg_img = s.bgimg(s);
-        nlb:revive();
-        nlb:ways_chk(s);
-        vn:scene(bg_img);
-        local geomFuncNeedToCall = true;
-        if geomFuncNeedToCall then
-            vn:auto_geom('dissolve', function() s.autos(s); end);
-        end;
-        return vn:get_win_coords();
-    end,
-    exit = function(s, t)
-        s.sndout(s);
-        s.wastext = false;
-        s.lasttext = nil;
-    end,
-    life = function(s)
-        if vn.stopped then s.autos(s); end;
-    end,
-    snd = function(s) 
-            set_music('sound/lukhash_-_failure.ogg', 0);
-    end,
-    sndout = function(s) end,
-};
-
-v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_choices = vn_choices {
-    nam = "Am I a Monster?",
-    disp = true,
-    textbg = true,
-    ignore_preserved_gobjs = true,
-    dsc = true,
-    var { paginator_state = false; },
-    enter = function(s) 
-        s.paginator_state = paginator.on;
-        objs():zap();
-        paginator:turnoff();
-        vn.skip_mode = false;
-        vn:unlock_direct();
-        put(_try_again);
-        s:initf();
-    end,
-    theme_file = function(s) return "theme_vn.lua"; end,
-    initf = function(s) 
-        return vn:auto_geom_end('dissolve');
-    end,
-    exit = function(s) 
-        if s.paginator_state then paginator:turnon(); end;
-    end
-}
-
--- 33. Драка, победа, -1 жизнь
-v_bc738a80_9890_4416_bead_3bbc8f533412 = vnr {
-    nam = 'Am I a Monster?',
-    notes = '33. Драка, победа, -1 жизнь',
-    bgimg = function(s)
-        if (true) then
-            return 'images/33.jpg';
-        end
-
-    end,
-    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
-    dsc = function(s)
-pn("Соорудив примитивное оружие, вы вернулись к особняку. Вас встретил мускулистый лохматый мужчина. По выражению его лица вы поняли, что он по-прежнему не собирается вас пропускать.");
-pn();
-pn(" Оборотень кинулся на вас. Вы резко выбросили из-за спины руку с зажатым в ней колом. Охранник, не успев остановиться, налетел грудью прямо на острую палку.");
-pn();
-pn("");
-pn();
-    end,
-    walk_to = "v_bc738a80_9890_4416_bead_3bbc8f533412_choices",
-    autos = function(s)
-        nlb:revive();
-        nlb:ways_chk(s);
-        return true;
-    end,
-    nextsnd = function(s)
-        local sndfile = nlb:pop('v_bc738a80_9890_4416_bead_3bbc8f533412_snds');
-        if sndfile ~= nil then
-            s.sndout(s);
-            add_sound(sndfile);
-        end;
-    end,
-    theme_file = function(s)
-        return 'theme_vn.lua';
-    end,
-    enter = function(s, f)
-        nlb:theme_switch(s:theme_file());
-        s.lasttext = nil;
-        s.wastext = false;
-        if not (f.autowired) then
-_hp = _hp - 1;
-        end;
-        s:initf();
-    end,
-    initf = function(s)
-        s.snd(s);
-        local bg_img = s.bgimg(s);
-        nlb:revive();
-        nlb:ways_chk(s);
-        vn:scene(bg_img);
-        local geomFuncNeedToCall = true;
-        if geomFuncNeedToCall then
-            vn:auto_geom('dissolve', function() s.autos(s); end);
-        end;
-        return vn:get_win_coords();
-    end,
-    exit = function(s, t)
-        s.sndout(s);
-        s.wastext = false;
-        s.lasttext = nil;
-    end,
-    life = function(s)
-        if vn.stopped then s.autos(s); end;
-    end,
-    snd = function(s) 
-    end,
-    sndout = function(s) end,
-};
-
-v_bc738a80_9890_4416_bead_3bbc8f533412_choices = vn_choices {
-    nam = "Am I a Monster?",
-    disp = true,
-    textbg = true,
-    ignore_preserved_gobjs = true,
-    var { paginator_state = false; },
-    enter = function(s) 
-        s.paginator_state = paginator.on;
-        objs():zap();
-        paginator:turnoff();
-if ( not _guardDone) then
-        nlb:nlbwalk(v_bc738a80_9890_4416_bead_3bbc8f533412, v_6e8c1c0f_abd8_4e5c_83a5_7e3e003c7f46); 
-    return;
-end;
-    end,
-    theme_file = function(s) return "theme_vn.lua"; end,
-    initf = function(s) 
-        return vn:auto_geom_choices('dissolve');
-    end,
-    exit = function(s) 
-        if s.paginator_state then paginator:turnon(); end;
-    end
-}
-
--- 26.
-v_0e3e04d8_03e7_459d_8136_e7c135100101 = vnr {
-    nam = 'Am I a Monster?',
-    notes = '26.',
-    bgimg = function(s)
-        if (true) then
-            return 'images/26.jpg';
-        end
-
-    end,
-    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
-    dsc = function(s)
-pn("Внезапно раздалось рычание, и перед вами возник волк с оскаленной мордой. Это был огромный зверь, крупнее вас.");
-pn();
-pn(" Вы приготовились к драке, но монстр не спешил нападать. Шумно втянув носом воздух, он заговорил с вами:");
-pn();
-pn("");
-pn();
-pn("-- Кто ты? Откуда здесь взялся?");
-pn();
-pn("-- Хозяин этого дома сделал меня оборотнем. Я пришёл, чтобы разделаться с ним, -- честно ответили вы.");
-pn();
-pn("-- Ты тоже надевал волчью шкуру? -- уже мягче спросил зверь.");
-pn();
-pn("-- Да.");
-pn();
-pn("-- Меня он превратил тем же способом. Теперь я у него что-то вроде сторожевого пса, -- с тоской сообщил оборотень. -- Человеком мне уже не стать. А у тебя ещё есть шанс?");
-pn();
-pn("-- Не знаю. Но очень надеюсь.");
-pn();
-    end,
-    walk_to = "v_0e3e04d8_03e7_459d_8136_e7c135100101_choices",
-    autos = function(s)
-        nlb:revive();
-        nlb:ways_chk(s);
-        return true;
-    end,
-    nextsnd = function(s)
-        local sndfile = nlb:pop('v_0e3e04d8_03e7_459d_8136_e7c135100101_snds');
-        if sndfile ~= nil then
-            s.sndout(s);
-            add_sound(sndfile);
-        end;
-    end,
-    theme_file = function(s)
-        return 'theme_vn.lua';
-    end,
-    enter = function(s, f)
-        nlb:theme_switch(s:theme_file());
-        s.lasttext = nil;
-        s.wastext = false;
-        if not (f.autowired) then
-        end;
-        s:initf();
-    end,
-    initf = function(s)
-        s.snd(s);
-        local bg_img = s.bgimg(s);
-        nlb:revive();
-        nlb:ways_chk(s);
-        vn:scene(bg_img);
-        local geomFuncNeedToCall = true;
-        if geomFuncNeedToCall then
-            vn:auto_geom('dissolve', function() s.autos(s); end);
-        end;
-        return vn:get_win_coords();
-    end,
-    exit = function(s, t)
-        s.sndout(s);
-        s.wastext = false;
-        s.lasttext = nil;
-    end,
-    life = function(s)
-        if vn.stopped then s.autos(s); end;
-    end,
-    snd = function(s) 
-    end,
-    sndout = function(s) end,
-};
-
-v_0e3e04d8_03e7_459d_8136_e7c135100101_choices = vn_choices {
-    nam = "Am I a Monster?",
-    disp = true,
-    textbg = true,
-    ignore_preserved_gobjs = true,
-    var { paginator_state = false; },
-    enter = function(s) 
-        s.paginator_state = paginator.on;
-        objs():zap();
-        paginator:turnoff();
-if (( not _guardDone) and (_wolvesTalk)) then
-        nlb:nlbwalk(v_0e3e04d8_03e7_459d_8136_e7c135100101, v_2eb72ffe_865a_4e51_aa9c_60af1b055fc3); 
-    return;
-end;
-if (( not _guardDone) and ( not _wolvesTalk)) then
-        nlb:nlbwalk(v_0e3e04d8_03e7_459d_8136_e7c135100101, v_d45d6de2_e019_4a32_87f8_5f97ab2fcbf9); 
+        nlb:nlbwalk(v_7e4ded08_354b_4c76_b876_2e8ac335fdad, v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c, false); 
     return;
 end;
     end,
@@ -4983,9 +4866,10 @@ v_0848f12f_cff7_4d6d_b67a_b1b996eb6322 = vnr {
     end,
     walk_to = "v_0848f12f_cff7_4d6d_b67a_b1b996eb6322_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if (true) then         nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_8c0da93f_8301_442b_a9fd_60d68d9610d0); 
+        if (true) then         nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_8c0da93f_8301_442b_a9fd_60d68d9610d0, true); 
 
         return false;
  end;
@@ -5075,7 +4959,7 @@ v_c92edec5_e799_4393_bb58_bac32756f883 = menu {
     nam = "v_c92edec5_e799_4393_bb58_bac32756f883",
     dsc = function(s) return "{Выбрать рябину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_b8eecad7_8e40_4397_87de_e794189f7bf5); 
+        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_b8eecad7_8e40_4397_87de_e794189f7bf5, false); 
     end
 }
 
@@ -5083,7 +4967,7 @@ v_3552ac04_1e42_4cfb_bfef_9d7777d3b6b9 = menu {
     nam = "v_3552ac04_1e42_4cfb_bfef_9d7777d3b6b9",
     dsc = function(s) return "{Выбрать боярышник}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_bc738a80_9890_4416_bead_3bbc8f533412); 
+        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_bc738a80_9890_4416_bead_3bbc8f533412, false); 
     end
 }
 
@@ -5091,7 +4975,7 @@ v_57bfa54c_a18e_4322_b9ad_2eb6559c4298 = menu {
     nam = "v_57bfa54c_a18e_4322_b9ad_2eb6559c4298",
     dsc = function(s) return "{Выбрать калину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_7e4ded08_354b_4c76_b876_2e8ac335fdad); 
+        nlb:nlbwalk(v_0848f12f_cff7_4d6d_b67a_b1b996eb6322, v_7e4ded08_354b_4c76_b876_2e8ac335fdad, false); 
     end
 }
 
@@ -5118,6 +5002,7 @@ pn();
     end,
     walk_to = "v_8c0da93f_8301_442b_a9fd_60d68d9610d0_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5177,11 +5062,11 @@ v_8c0da93f_8301_442b_a9fd_60d68d9610d0_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (_wolfiness >= 1) then
-        nlb:nlbwalk(v_8c0da93f_8301_442b_a9fd_60d68d9610d0, v_e307ea1f_9d44_45f0_aa58_15607482293b); 
+        nlb:nlbwalk(v_8c0da93f_8301_442b_a9fd_60d68d9610d0, v_e307ea1f_9d44_45f0_aa58_15607482293b, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness < 1) then
-        nlb:nlbwalk(v_8c0da93f_8301_442b_a9fd_60d68d9610d0, v_e0d11a50_50d2_4521_be11_10267f8aab92); 
+        nlb:nlbwalk(v_8c0da93f_8301_442b_a9fd_60d68d9610d0, v_e0d11a50_50d2_4521_be11_10267f8aab92, false); 
     return;
 end;
     end,
@@ -5211,6 +5096,7 @@ pn();
     end,
     walk_to = "v_e307ea1f_9d44_45f0_aa58_15607482293b_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5292,7 +5178,7 @@ v_e307ea1f_9d44_45f0_aa58_15607482293b_b8eecad7_8e40_4397_87de_e794189f7bf5_c92e
     nam = "v_e307ea1f_9d44_45f0_aa58_15607482293b_b8eecad7_8e40_4397_87de_e794189f7bf5_c92edec5_e799_4393_bb58_bac32756f883_Return",
     dsc = function(s) return "{Выбрать рябину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_b8eecad7_8e40_4397_87de_e794189f7bf5); 
+        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_b8eecad7_8e40_4397_87de_e794189f7bf5, false); 
     end
 }
 
@@ -5300,7 +5186,7 @@ v_e307ea1f_9d44_45f0_aa58_15607482293b_bc738a80_9890_4416_bead_3bbc8f533412_3552
     nam = "v_e307ea1f_9d44_45f0_aa58_15607482293b_bc738a80_9890_4416_bead_3bbc8f533412_3552ac04_1e42_4cfb_bfef_9d7777d3b6b9_Return",
     dsc = function(s) return "{Выбрать боярышник}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_bc738a80_9890_4416_bead_3bbc8f533412); 
+        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_bc738a80_9890_4416_bead_3bbc8f533412, false); 
     end
 }
 
@@ -5308,7 +5194,7 @@ v_e307ea1f_9d44_45f0_aa58_15607482293b_7e4ded08_354b_4c76_b876_2e8ac335fdad_57bf
     nam = "v_e307ea1f_9d44_45f0_aa58_15607482293b_7e4ded08_354b_4c76_b876_2e8ac335fdad_57bfa54c_a18e_4322_b9ad_2eb6559c4298_Return",
     dsc = function(s) return "{Выбрать калину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_7e4ded08_354b_4c76_b876_2e8ac335fdad); 
+        nlb:nlbwalk(v_e307ea1f_9d44_45f0_aa58_15607482293b, v_7e4ded08_354b_4c76_b876_2e8ac335fdad, false); 
     end
 }
 
@@ -5329,6 +5215,7 @@ pn();
     end,
     walk_to = "v_e0d11a50_50d2_4521_be11_10267f8aab92_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5410,7 +5297,7 @@ v_e0d11a50_50d2_4521_be11_10267f8aab92_b8eecad7_8e40_4397_87de_e794189f7bf5_c92e
     nam = "v_e0d11a50_50d2_4521_be11_10267f8aab92_b8eecad7_8e40_4397_87de_e794189f7bf5_c92edec5_e799_4393_bb58_bac32756f883_Return",
     dsc = function(s) return "{Выбрать рябину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_b8eecad7_8e40_4397_87de_e794189f7bf5); 
+        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_b8eecad7_8e40_4397_87de_e794189f7bf5, false); 
     end
 }
 
@@ -5418,7 +5305,7 @@ v_e0d11a50_50d2_4521_be11_10267f8aab92_bc738a80_9890_4416_bead_3bbc8f533412_3552
     nam = "v_e0d11a50_50d2_4521_be11_10267f8aab92_bc738a80_9890_4416_bead_3bbc8f533412_3552ac04_1e42_4cfb_bfef_9d7777d3b6b9_Return",
     dsc = function(s) return "{Выбрать боярышник}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_bc738a80_9890_4416_bead_3bbc8f533412); 
+        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_bc738a80_9890_4416_bead_3bbc8f533412, false); 
     end
 }
 
@@ -5426,7 +5313,194 @@ v_e0d11a50_50d2_4521_be11_10267f8aab92_7e4ded08_354b_4c76_b876_2e8ac335fdad_57bf
     nam = "v_e0d11a50_50d2_4521_be11_10267f8aab92_7e4ded08_354b_4c76_b876_2e8ac335fdad_57bfa54c_a18e_4322_b9ad_2eb6559c4298_Return",
     dsc = function(s) return "{Выбрать калину}^^" end, 
     act = function(s) 
-        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_7e4ded08_354b_4c76_b876_2e8ac335fdad); 
+        nlb:nlbwalk(v_e0d11a50_50d2_4521_be11_10267f8aab92, v_7e4ded08_354b_4c76_b876_2e8ac335fdad, false); 
+    end
+}
+
+-- 31. Вы взяли рябину
+v_b8eecad7_8e40_4397_87de_e794189f7bf5 = vnr {
+    nam = 'Am I a Monster?',
+    notes = '31. Вы взяли рябину',
+    bgimg = function(s)
+        if (true) then
+            return 'images/31.jpg';
+        end
+
+    end,
+    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
+    dsc = function(s)
+pn("На глаза вам попалась раскидистая рябина.");
+pn();
+    end,
+    walk_to = "v_b8eecad7_8e40_4397_87de_e794189f7bf5_choices",
+    autos = function(s)
+        update_action_count();
+        nlb:revive();
+        nlb:ways_chk(s);
+        return true;
+    end,
+    nextsnd = function(s)
+        local sndfile = nlb:pop('v_b8eecad7_8e40_4397_87de_e794189f7bf5_snds');
+        if sndfile ~= nil then
+            s.sndout(s);
+            add_sound(sndfile);
+        end;
+    end,
+    theme_file = function(s)
+        return 'theme_vn.lua';
+    end,
+    enter = function(s, f)
+        nlb:theme_switch(s:theme_file());
+        s.lasttext = nil;
+        s.wastext = false;
+        if not (f.autowired) then
+        end;
+        s:initf();
+    end,
+    initf = function(s)
+        s.snd(s);
+        local bg_img = s.bgimg(s);
+        nlb:revive();
+        nlb:ways_chk(s);
+        vn:scene(bg_img);
+        local geomFuncNeedToCall = true;
+        if geomFuncNeedToCall then
+            vn:auto_geom('dissolve', function() s.autos(s); end);
+        end;
+        return vn:get_win_coords();
+    end,
+    exit = function(s, t)
+        s.sndout(s);
+        s.wastext = false;
+        s.lasttext = nil;
+    end,
+    life = function(s)
+        if vn.stopped then s.autos(s); end;
+    end,
+    snd = function(s) 
+    end,
+    sndout = function(s) end,
+};
+
+v_b8eecad7_8e40_4397_87de_e794189f7bf5_choices = vn_choices {
+    nam = "Am I a Monster?",
+    disp = true,
+    textbg = true,
+    ignore_preserved_gobjs = true,
+    var { paginator_state = false; },
+    enter = function(s) 
+        s.paginator_state = paginator.on;
+        objs():zap();
+        paginator:turnoff();
+if ( not _guardDone) then
+        nlb:nlbwalk(v_b8eecad7_8e40_4397_87de_e794189f7bf5, v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c, false); 
+    return;
+end;
+    end,
+    theme_file = function(s) return "theme_vn.lua"; end,
+    initf = function(s) 
+        return vn:auto_geom_choices('dissolve');
+    end,
+    exit = function(s) 
+        if s.paginator_state then paginator:turnon(); end;
+    end
+}
+
+-- 34. Драка, конец
+v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c = vnr {
+    nam = 'Am I a Monster?',
+    notes = '34. Драка, конец',
+    bgimg = function(s)
+        if (true) then
+            return 'images/34.jpg';
+        end
+
+    end,
+    var { time = 0; wastext = false; lasttext = nil; tag = ''; autowired = false; },
+    dsc = function(s)
+pn("На ней вы и остановили свой выбор. Вам удалось сломать толстую ветку под острым углом.  Соорудив примитивное оружие, вы вернулись к особняку.");
+pn();
+pn(" Вас встретил мускулистый лохматый мужчина. По выражению его лица вы поняли, что он по-прежнему не собирается вас пропускать.");
+pn();
+pn(" Оборотень кинулся на вас. Вы резко выбросили из-за спины руку с зажатым в ней колом. Охранник, не успев остановиться, налетел грудью прямо на острую палку. Он заревел от боли и бросился на вас. Из его смертельных объятий вам уже не суждено было выбраться.");
+pn();
+pn("");
+pn();
+    end,
+    walk_to = "v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_choices",
+    autos = function(s)
+        update_action_count();
+        nlb:revive();
+        nlb:ways_chk(s);
+        return true;
+    end,
+    nextsnd = function(s)
+        local sndfile = nlb:pop('v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_snds');
+        if sndfile ~= nil then
+            s.sndout(s);
+            add_sound(sndfile);
+        end;
+    end,
+    theme_file = function(s)
+        return 'theme_vn.lua';
+    end,
+    enter = function(s, f)
+        nlb:theme_switch(s:theme_file());
+        s.lasttext = nil;
+        s.wastext = false;
+        if not (f.autowired) then
+nlb:setAchievement(statsAPI, 'WRONG_CHOICE', '82a5f73c-a804-46ce-8240-86b95c99f529');
+        end;
+        s:initf();
+    end,
+    initf = function(s)
+        s.snd(s);
+        local bg_img = s.bgimg(s);
+        nlb:revive();
+        nlb:ways_chk(s);
+        vn:scene(bg_img);
+        local geomFuncNeedToCall = true;
+        if geomFuncNeedToCall then
+            vn:auto_geom('dissolve', function() s.autos(s); end);
+        end;
+        return vn:get_win_coords();
+    end,
+    exit = function(s, t)
+        s.sndout(s);
+        s.wastext = false;
+        s.lasttext = nil;
+    end,
+    life = function(s)
+        if vn.stopped then s.autos(s); end;
+    end,
+    snd = function(s) 
+            set_music('sound/lukhash_-_failure.ogg', 0);
+    end,
+    sndout = function(s) end,
+};
+
+v_9a78cd0b_cc2b_4c46_bf73_e807ed71189c_choices = vn_choices {
+    nam = "Am I a Monster?",
+    disp = true,
+    textbg = true,
+    ignore_preserved_gobjs = true,
+    dsc = true,
+    var { paginator_state = false; },
+    enter = function(s) 
+        s.paginator_state = paginator.on;
+        objs():zap();
+        paginator:turnoff();
+        vn.skip_mode = false;
+        vn:unlock_direct();
+        put(_try_again);
+        s:initf();
+    end,
+    theme_file = function(s) return "theme_vn.lua"; end,
+    initf = function(s) 
+        return vn:auto_geom_end('dissolve');
+    end,
+    exit = function(s) 
+        if s.paginator_state then paginator:turnon(); end;
     end
 }
 
@@ -5442,9 +5516,10 @@ v_d5044b52_9786_43aa_b097_67a7b3220d6a = vnr {
     end,
     walk_to = "v_d5044b52_9786_43aa_b097_67a7b3220d6a_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
-        if (true) then         nlb:nlbwalk(v_d5044b52_9786_43aa_b097_67a7b3220d6a, v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa); 
+        if (true) then         nlb:nlbwalk(v_d5044b52_9786_43aa_b097_67a7b3220d6a, v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, true); 
 
         return false;
  end;
@@ -5516,6 +5591,7 @@ pn();
     end,
     walk_to = "v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5580,19 +5656,19 @@ v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_wolfiness ~= nil) and (_wolfiness == 3) then
-        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_61f37b28_518b_4025_8913_5c278ba14bdb); 
+        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_61f37b28_518b_4025_8913_5c278ba14bdb, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness == 2) then
-        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_c195f996_3411_4120_a03d_1cbc25d871c7); 
+        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_c195f996_3411_4120_a03d_1cbc25d871c7, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness == 1) then
-        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_8a8ee4b3_7744_4fe5_a3e0_6a5a5eb91f82); 
+        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_8a8ee4b3_7744_4fe5_a3e0_6a5a5eb91f82, false); 
     return;
 end;
 if (_wolfiness ~= nil) and (_wolfiness < 1) then
-        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_b5aa3b43_a7be_44b3_82d1_95925a213cd7); 
+        nlb:nlbwalk(v_0aa69b7f_274b_42ee_a758_4d3c2f98e3aa, v_b5aa3b43_a7be_44b3_82d1_95925a213cd7, false); 
     return;
 end;
     end,
@@ -5634,6 +5710,7 @@ pn();
     end,
     walk_to = "v_c195f996_3411_4120_a03d_1cbc25d871c7_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5739,6 +5816,7 @@ pn();
     end,
     walk_to = "v_b5aa3b43_a7be_44b3_82d1_95925a213cd7_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5797,11 +5875,11 @@ v_b5aa3b43_a7be_44b3_82d1_95925a213cd7_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if (_hp ~= nil) and (_hp > 1) then
-        nlb:nlbwalk(v_b5aa3b43_a7be_44b3_82d1_95925a213cd7, v_c81126f6_4646_42b3_af03_aae3d6a9a0c2); 
+        nlb:nlbwalk(v_b5aa3b43_a7be_44b3_82d1_95925a213cd7, v_c81126f6_4646_42b3_af03_aae3d6a9a0c2, false); 
     return;
 end;
 if (_hp ~= nil) and (_hp <= 1) then
-        nlb:nlbwalk(v_b5aa3b43_a7be_44b3_82d1_95925a213cd7, v_eaa4f345_6237_416d_9764_f6f503028864); 
+        nlb:nlbwalk(v_b5aa3b43_a7be_44b3_82d1_95925a213cd7, v_eaa4f345_6237_416d_9764_f6f503028864, false); 
     return;
 end;
     end,
@@ -5845,6 +5923,7 @@ pn();
     end,
     walk_to = "v_eaa4f345_6237_416d_9764_f6f503028864_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -5960,6 +6039,7 @@ pn();
     end,
     walk_to = "v_8a8ee4b3_7744_4fe5_a3e0_6a5a5eb91f82_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -6067,6 +6147,7 @@ pn();
     end,
     walk_to = "v_c81126f6_4646_42b3_af03_aae3d6a9a0c2_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -6168,6 +6249,7 @@ pn();
     end,
     walk_to = "v_61f37b28_518b_4025_8913_5c278ba14bdb_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -6289,6 +6371,7 @@ pn();
     end,
     walk_to = "v_30f2da3a_76a3_40b2_84f0_41714eb48ae4_choices",
     autos = function(s)
+        update_action_count();
         nlb:revive();
         nlb:ways_chk(s);
         return true;
@@ -6349,7 +6432,7 @@ v_30f2da3a_76a3_40b2_84f0_41714eb48ae4_choices = vn_choices {
         objs():zap();
         paginator:turnoff();
 if true then
-        nlb:nlbwalk(v_30f2da3a_76a3_40b2_84f0_41714eb48ae4, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1); 
+        nlb:nlbwalk(v_30f2da3a_76a3_40b2_84f0_41714eb48ae4, v_c28ae684_785a_4442_8756_8f5a7e9fb0c1, false); 
     return;
 end;
     end,
